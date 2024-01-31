@@ -1,20 +1,36 @@
-#alpine base image
-FROM alpine:3.19
+# Ubuntu base image
+FROM ubuntu:20.04
 
-#update and install stuff
-RUN apk update && apk upgrade \
-    && apk add curl jq && apk add sudo
+# update and install stuff 
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl jq sudo bash
 
-#creates user GHA with no password and adds to sudoers
-RUN adduser -D GHA && mkdir -p /etc/sudoers.d \
+# creates user GHA with no password and adds to sudoers
+RUN useradd -m GHA && mkdir -p /etc/sudoers.d \
     && echo "GHA ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/GHA \
     && chmod 0440 /etc/sudoers.d/GHA
 
-#switch to user GHA
+# switch to user GHA
 USER GHA
 
-#install runner
-RUN sudo curl -O -L https://github.com/actions/runner/releases/download/v2.312.0/actions-runner-linux-arm64-2.312.0.tar.gz \
-    && sudo tar xzf ./actions-runner-linux-arm64-2.312.0.tar.gz \
-    && sudo rm -f ./actions-runner-linux-arm64-2.312.0.tar.gz
+# set the working directory
+WORKDIR /home/GHA/actions-runner
 
+# create a directory for the runner and install
+RUN sudo mkdir -p /home/GHA/actions-runner \
+    && cd /home/GHA/actions-runner \
+    && sudo curl -O -L https://github.com/actions/runner/releases/download/v2.312.0/actions-runner-linux-arm64-2.312.0.tar.gz \
+    && sudo tar xzf ./actions-runner-linux-arm64-2.312.0.tar.gz \
+    && sudo rm -f ./actions-runner-linux-arm64-2.312.0.tar.gz \
+    && sudo ./bin/installdependencies.sh  
+
+# copy any necessary files (start.sh)
+COPY . .
+
+# make start.sh executable and change ownership
+RUN sudo chmod +x /home/GHA/actions-runner/start.sh && \
+    sudo chown -R GHA:GHA /home/GHA/actions-runner 
+    
+# start the runner
+ENTRYPOINT ["./start.sh"]
