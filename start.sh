@@ -1,12 +1,22 @@
 #!/bin/bash
-REPO_OWNER="myles-coleman"
-REPO_NAME="containers3.4"
-GITHUB_TOKEN="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"
+# Source the .env file to load the secrets
+if [ -f .env ]; then
+  source .env
+else
+  echo "Error: The .env file is missing."
+  exit 1
+fi
 
 # Use the GitHub API to create a self-hosted runner token
 RUNNER_TOKEN=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/runners/registration-token" | jq -r .token)
 
-./config.sh --url https://github.com/myles-coleman/containers3.4 --token $RUNNER_TOKEN
-./run.sh
+# If there is no runner, then configure one
+if [ ! -f ".runner" ]; then
+  ./config.sh --url https://github.com/${REPO_OWNER}/${REPO_NAME} --token $RUNNER_TOKEN
+  touch .runner # Save a marker file indicating that the runner is configured
+  ./run.sh
+else # else if there is already a runner, then just start the runner
+  ./run.sh
+fi

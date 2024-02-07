@@ -16,7 +16,7 @@ USER GHA
 
 # set the working directory
 WORKDIR /home/GHA/actions-runner
-
+    
 # create a directory for the runner and install
 RUN sudo mkdir -p /home/GHA/actions-runner \
     && cd /home/GHA/actions-runner \
@@ -25,8 +25,8 @@ RUN sudo mkdir -p /home/GHA/actions-runner \
     && sudo rm -f ./actions-runner-linux-arm64-2.312.0.tar.gz \
     && sudo ./bin/installdependencies.sh  
 
-# copy any necessary files (start.sh)
-COPY . .
+# copy any necessary files
+COPY ./start.sh ./.env ./
 
 # make start.sh executable and change ownership
 RUN sudo chmod +x /home/GHA/actions-runner/start.sh && \
