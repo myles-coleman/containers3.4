@@ -1,4 +1,13 @@
 #!/bin/bash
+
+# Source the .env file to load the secrets
+if [ -f .env ]; then
+  source .env
+else
+  echo "Error: The .env file is missing."
+  exit 1
+fi
+
 # Use the GitHub API to create a self-hosted runner token
 RUNNER_TOKEN=$(curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
   -H "Accept: application/vnd.github.v3+json" \

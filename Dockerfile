@@ -25,7 +25,7 @@ RUN sudo mkdir -p /home/GHA/actions-runner && \
     sudo ./bin/installdependencies.sh  
 
 # copy any necessary files
-COPY ./start.sh ./
+COPY ./start.sh ./.env ./
 
 # make start.sh executable and change ownership
 RUN sudo chmod +x /home/GHA/actions-runner/start.sh && \

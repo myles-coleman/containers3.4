@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-deployment
+  namespace: bootcamp
+  labels:
+    app: bootcamp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexus
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      containers:
+      - name: nexus
+        image: docker.io/beebecomebigbee/nexus:latest
+        ports:
+        - containerPort: 8081
